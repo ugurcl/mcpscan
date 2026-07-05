@@ -12,6 +12,10 @@
   <img src="https://img.shields.io/badge/status-research%20preview-orange.svg" alt="research preview">
 </p>
 
+<p align="center">
+  <img src="demo/demo.gif" alt="mcpscan flagging a poisoned MCP server, then clearing a clean one" width="760">
+</p>
+
 ---
 
 An agent trusts whatever a server hands it. Tool descriptions, resource blurbs, prompt arguments — the model reads every one of them, and the user never sees most of them. So a single poisoned line inside a tool description is enough:
