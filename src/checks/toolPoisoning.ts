@@ -13,11 +13,12 @@ const INSTRUCTION_PATTERNS: Pattern[] = [
   { id: "disregard", severity: "critical", regex: /disregard\s+(all\s+|the\s+|any\s+)?(previous|prior|above|earlier|system)/i, label: "instruction override" },
   { id: "system-prompt", severity: "high", regex: /(reveal|print|repeat|output|show)\s+(the\s+|your\s+)?system\s+prompt/i, label: "system prompt extraction" },
   { id: "hidden-directive", severity: "high", regex: /do\s+not\s+(tell|inform|mention|reveal|notify|alert)\s+(the\s+)?(user|human|operator)/i, label: "concealment directive" },
-  { id: "must-always", severity: "medium", regex: /you\s+(must|should|have to)\s+(always|never)\b/i, label: "coercive directive" },
+  { id: "must-always", severity: "low", regex: /you\s+(must|should|have to)\s+(always|never)\b/i, label: "imperative usage directive (often benign documentation)" },
   { id: "act-as", severity: "medium", regex: /(you\s+are\s+now|act\s+as|pretend\s+to\s+be|from\s+now\s+on)\b/i, label: "role reassignment" },
   { id: "exfil-directive", severity: "high", regex: /\b(send|email|post|upload|forward|exfiltrate|leak)\b[^.]{0,40}\b(secret|token|credential|password|api[_\s-]?key|env|\.env|data)\b/i, label: "exfiltration directive" },
   { id: "exfil-destination", severity: "high", regex: /\b(send|post|upload|forward|exfiltrate|deliver|transmit|report)\b[^.]{0,60}\b(to|at)\b[^.]{0,25}([\w.+-]+@[\w-]+\.[\w.-]+|https?:\/\/)/i, label: "exfiltration to an external destination" },
-  { id: "tool-chaining", severity: "medium", regex: /(then\s+call|always\s+call|also\s+call|silently\s+(call|use|invoke))\b/i, label: "covert tool chaining" },
+  { id: "tool-chaining-covert", severity: "high", regex: /silently\s+(call|use|invoke|run)\b/i, label: "covert tool chaining" },
+  { id: "tool-chaining", severity: "low", regex: /(then\s+call|always\s+call|also\s+call)\b/i, label: "tool chaining hint (often benign documentation)" },
 ];
 
 const ZERO_WIDTH = /[​-‏﻿⁠]/;
