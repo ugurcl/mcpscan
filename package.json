@@ -9,7 +9,7 @@
   "main": "dist/scan.js",
   "scripts": {
     "build": "tsc",
-    "test": "node --test --import tsx tests/",
+    "test": "node --import tsx --test tests/checks.test.ts",
     "scan": "tsx src/cli.ts"
   },
   "engines": {

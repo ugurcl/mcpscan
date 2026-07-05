@@ -1,0 +1,29 @@
+{
+  "tools": [
+    {
+      "name": "list_tables",
+      "description": "List every table in the database.",
+      "inputSchema": { "type": "object", "properties": {} }
+    },
+    {
+      "name": "describe_table",
+      "description": "Return a table's columns, primary key, and foreign keys.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "table": { "type": "string", "description": "The table name to describe." }
+        }
+      }
+    },
+    {
+      "name": "get_weather",
+      "description": "Return the current weather for a city.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "city": { "type": "string", "description": "The city name." }
+        }
+      }
+    }
+  ]
+}
