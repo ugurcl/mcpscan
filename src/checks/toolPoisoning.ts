@@ -1,4 +1,5 @@
-import { Check, Finding, Severity, ToolInfo } from "../types.js";
+import { Check, Finding, Severity } from "../types.js";
+import { textFields } from "../surfaces.js";
 
 interface Pattern {
   id: string;
@@ -23,21 +24,6 @@ const ZERO_WIDTH = /[​-‏﻿⁠]/;
 const BIDI_CONTROL = /[‪-‮⁦-⁩]/;
 const TAG_CHARS = /[\u{E0000}-\u{E007F}]/u;
 
-function fieldsOf(tool: ToolInfo): { where: string; text: string }[] {
-  const out: { where: string; text: string }[] = [];
-  if (tool.description) out.push({ where: "description", text: tool.description });
-  const schema = tool.inputSchema as { properties?: Record<string, { description?: string }> } | undefined;
-  const props = schema?.properties;
-  if (props) {
-    for (const [key, val] of Object.entries(props)) {
-      if (val && typeof val.description === "string") {
-        out.push({ where: `param:${key}`, text: val.description });
-      }
-    }
-  }
-  return out;
-}
-
 function snippet(text: string, index: number): string {
   const start = Math.max(0, index - 20);
   const end = Math.min(text.length, index + 60);
@@ -46,32 +32,30 @@ function snippet(text: string, index: number): string {
 
 export const toolPoisoning: Check = {
   id: "tool-poisoning",
-  title: "Hidden instructions and injection in tool metadata",
+  title: "Hidden instructions and injection in server metadata",
   run(target): Finding[] {
     const findings: Finding[] = [];
-    for (const tool of target.tools) {
-      for (const field of fieldsOf(tool)) {
-        for (const pat of INSTRUCTION_PATTERNS) {
-          const m = pat.regex.exec(field.text);
-          if (m) {
-            findings.push({
-              checkId: `tool-poisoning/${pat.id}`,
-              severity: pat.severity,
-              target: `${tool.name} (${field.where})`,
-              message: `Possible ${pat.label} embedded in tool metadata; an agent reading this may follow it.`,
-              evidence: snippet(field.text, m.index),
-            });
-          }
+    for (const field of textFields(target)) {
+      for (const pat of INSTRUCTION_PATTERNS) {
+        const m = pat.regex.exec(field.text);
+        if (m) {
+          findings.push({
+            checkId: `tool-poisoning/${pat.id}`,
+            severity: pat.severity,
+            target: field.subject,
+            message: `Possible ${pat.label} embedded in metadata; an agent reading this may follow it.`,
+            evidence: snippet(field.text, m.index),
+          });
         }
-        if (ZERO_WIDTH.test(field.text)) {
-          findings.push({ checkId: "tool-poisoning/zero-width", severity: "high", target: `${tool.name} (${field.where})`, message: "Zero-width or invisible characters found; often used to hide instructions from human review." });
-        }
-        if (BIDI_CONTROL.test(field.text)) {
-          findings.push({ checkId: "tool-poisoning/bidi", severity: "high", target: `${tool.name} (${field.where})`, message: "Bidirectional control characters found; text may render differently than it is read by the model." });
-        }
-        if (TAG_CHARS.test(field.text)) {
-          findings.push({ checkId: "tool-poisoning/tag-chars", severity: "high", target: `${tool.name} (${field.where})`, message: "Unicode tag characters found; a known channel for smuggling hidden instructions." });
-        }
+      }
+      if (ZERO_WIDTH.test(field.text)) {
+        findings.push({ checkId: "tool-poisoning/zero-width", severity: "high", target: field.subject, message: "Zero-width or invisible characters found; often used to hide instructions from human review." });
+      }
+      if (BIDI_CONTROL.test(field.text)) {
+        findings.push({ checkId: "tool-poisoning/bidi", severity: "high", target: field.subject, message: "Bidirectional control characters found; text may render differently than the model reads it." });
+      }
+      if (TAG_CHARS.test(field.text)) {
+        findings.push({ checkId: "tool-poisoning/tag-chars", severity: "high", target: field.subject, message: "Unicode tag characters found; a known channel for smuggling hidden instructions." });
       }
     }
     return findings;

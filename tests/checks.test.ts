@@ -34,6 +34,20 @@ test("vulnerable server scores low", () => {
   assert.ok(result.score < 50, `expected low score, got ${result.score}`);
 });
 
+test("flags injection in a resource description", () => {
+  const result = scanTarget(load("vulnerable-surfaces.json"));
+  const f = result.findings.find((x) => x.checkId === "tool-poisoning/disregard");
+  assert.ok(f, "expected a disregard finding");
+  assert.match(f!.target, /resource description/);
+});
+
+test("flags injection in a prompt argument", () => {
+  const result = scanTarget(load("vulnerable-surfaces.json"));
+  const f = result.findings.find((x) => x.checkId === "tool-poisoning/ignore-previous");
+  assert.ok(f, "expected an ignore-previous finding");
+  assert.match(f!.target, /prompt arg/);
+});
+
 test("clean server produces no critical or high findings", () => {
   const result = scanTarget(load("clean-tools.json"));
   const serious = result.findings.filter((f) => f.severity === "critical" || f.severity === "high");

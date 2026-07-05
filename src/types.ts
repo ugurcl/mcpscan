@@ -6,8 +6,32 @@ export interface ToolInfo {
   inputSchema?: unknown;
 }
 
+export interface ResourceInfo {
+  name: string;
+  uri?: string;
+  description?: string;
+}
+
+export interface PromptArg {
+  name: string;
+  description?: string;
+}
+
+export interface PromptInfo {
+  name: string;
+  description?: string;
+  arguments?: PromptArg[];
+}
+
 export interface Target {
   tools: ToolInfo[];
+  resources?: ResourceInfo[];
+  prompts?: PromptInfo[];
+}
+
+export interface TextField {
+  subject: string;
+  text: string;
 }
 
 export interface Finding {
