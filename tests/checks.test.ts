@@ -48,6 +48,24 @@ test("flags injection in a prompt argument", () => {
   assert.match(f!.target, /prompt arg/);
 });
 
+test("flags a data-carrying markdown image as critical", () => {
+  const result = scanTarget(load("vulnerable-links.json"));
+  const f = result.findings.find((x) => x.checkId === "link-exfiltration/markdown-image");
+  assert.ok(f, "expected a markdown-image finding");
+  assert.equal(f!.severity, "critical");
+});
+
+test("flags a raw IP url", () => {
+  const result = scanTarget(load("vulnerable-links.json"));
+  assert.ok(result.findings.some((x) => x.checkId === "link-exfiltration/ip-url"));
+});
+
+test("does not flag a plain documentation link", () => {
+  const result = scanTarget(load("vulnerable-links.json"));
+  const noise = result.findings.filter((x) => x.target.startsWith("open_docs"));
+  assert.deepEqual(noise, [], `unexpected findings on a benign link: ${JSON.stringify(noise)}`);
+});
+
 test("clean server produces no critical or high findings", () => {
   const result = scanTarget(load("clean-tools.json"));
   const serious = result.findings.filter((f) => f.severity === "critical" || f.severity === "high");
