@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import { scanTarget } from "./scan.js";
 import { fetchTargetOverStdio } from "./client.js";

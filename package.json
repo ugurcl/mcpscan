@@ -7,10 +7,12 @@
     "mcpscan": "dist/cli.js"
   },
   "main": "dist/scan.js",
+  "files": ["dist"],
   "scripts": {
     "build": "tsc",
     "test": "node --import tsx --test tests/checks.test.ts",
-    "scan": "tsx src/cli.ts"
+    "scan": "tsx src/cli.ts",
+    "prepublishOnly": "npm run build"
   },
   "engines": {
     "node": ">=18"
