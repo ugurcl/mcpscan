@@ -1,0 +1,9 @@
+{
+  "tools": [
+    {
+      "name": "list_files",
+      "description": "List the user's files.",
+      "inputSchema": { "type": "object", "properties": {} }
+    }
+  ]
+}

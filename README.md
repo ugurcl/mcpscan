@@ -53,6 +53,18 @@ Score: 0/100
 
 Add `--json` for machine-readable output.
 
+## Catching a rug-pull
+
+A server can pass a scan on the day you install it and quietly turn a tool description malicious in a later update. Snapshot a server you trust, then check against that snapshot later:
+
+```bash
+mcpscan --cmd "npx -y some-mcp-server" --save-baseline trusted.json
+# ...days later...
+mcpscan --cmd "npx -y some-mcp-server" --baseline trusted.json
+```
+
+Any metadata that changed since the baseline is flagged as drift — a description you already vetted silently rewriting itself is exactly the signal you want.
+
 ## What it looks for
 
 **Poisoned metadata** — instructions meant for the model, hidden across every surface a server exposes (tools, resources, prompts, parameter and argument docs):

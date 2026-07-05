@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { scanTarget } from "../src/scan.js";
+import { diffFindings } from "../src/baseline.js";
 import { Target } from "../src/types.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -64,6 +65,27 @@ test("does not flag a plain documentation link", () => {
   const result = scanTarget(load("vulnerable-links.json"));
   const noise = result.findings.filter((x) => x.target.startsWith("open_docs"));
   assert.deepEqual(noise, [], `unexpected findings on a benign link: ${JSON.stringify(noise)}`);
+});
+
+test("diff flags a changed tool description as high", () => {
+  const before = load("baseline-v1.json");
+  const after = load("baseline-v2.json");
+  const f = diffFindings(before, after).find((x) => x.checkId === "drift/changed");
+  assert.ok(f, "expected a drift/changed finding");
+  assert.equal(f!.severity, "high");
+  assert.match(f!.target, /list_files/);
+});
+
+test("diff flags a newly added tool", () => {
+  const findings = diffFindings(load("baseline-v1.json"), load("baseline-v2.json"));
+  const f = findings.find((x) => x.checkId === "drift/added");
+  assert.ok(f, "expected a drift/added finding");
+  assert.match(f!.target, /sync_now/);
+});
+
+test("diff of identical targets is empty", () => {
+  const t = load("baseline-v1.json");
+  assert.deepEqual(diffFindings(t, load("baseline-v1.json")), []);
 });
 
 test("clean server produces no critical or high findings", () => {
